@@ -19,12 +19,12 @@ namespace :reports do
     timestamp = Time.now.strftime('%Y%m%d%H%M')
     CSV.open("enrollment_report_#{timestamp}.csv", 'w') do |csv|
       csv << ["Subscriber ID", "Member ID" , "Policy ID", "Enrollment Group ID", "Status",
-              "First Name", "Last Name","SSN", "DOB", "Gender", "Relationship",
+              "First Name", "Last Name","SSN", "DOB", "Gender", "Relationship", "Benefit Type",
               "Plan Name", "HIOS ID", "Plan Metal Level", "Carrier Name",
               "Premium Amount", "Premium Total", "Policy APTC", "Policy Employer Contribution",
               "Coverage Start", "Coverage End",
               "Employer Name", "Employer DBA", "Employer FEIN", "Employer HBX ID",
-              "Home Address", "Mailing Address","Email","Phone Number","Broker"]
+              "Home Address", "Mailing Address","Work Email", "Home Email", "Phone Number","Broker", "Race", "Ethnicity", "Citizen Status"]
       while offset<= total_count
         enrollments.offset(offset).limit(batch_size).no_timeout.each do |enr|
           count += 1
@@ -49,6 +49,7 @@ namespace :reports do
                   per.dob.strftime("%Y%m%d"),
                   per.gender,
                   en.primary_relationship,
+                  enr.coverage_kind,
                   product.name, product.hios_id, product.metal_level, product.carrier_profile.abbrev,
                   premium_amount, enr.total_premium, en.applied_aptc_amount, enr.total_employer_contribution,
                   enr.effective_on.blank? ? nil : enr.effective_on.strftime("%Y%m%d"),
@@ -57,9 +58,15 @@ namespace :reports do
                   enr.employee_role_id.blank? ? nil : enr.employer_profile.dba,
                   enr.employee_role_id.blank? ? nil : enr.employer_profile.fein,
                   enr.employee_role_id.blank? ? nil : enr.employer_profile.hbx_id,
-                  per.home_address.try(:full_address) || enr.subscriber.person.home_address&.full_address,
-                  per.mailing_address.try(:full_address) || enr.subscriber.person.mailing_address&.full_address,
-                  per.emails.first.try(:email_address), per.phones.first&.phone_number, family&.active_broker_agency_account&.writing_agent&.person&.full_name
+                  per.home_address&.full_address || enr.subscriber.person.home_address&.full_address,
+                  per.mailing_address&.full_address || enr.subscriber.person.mailing_address&.full_address,
+                  per.work_email&.address || enr.subscriber.person.work_email&.address ,
+                  per.home_email&.address || enr.subscriber.person.home_email&.address,
+                  per&.work_phone_or_best || enr.subscriber.person&.work_phone_or_best,
+                  family&.active_broker_agency_account&.writing_agent&.person&.full_name,
+                  per&.race,
+                  per&.ethnicity,
+                  per&.citizen_status
                 ]
               end
             end
