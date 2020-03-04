@@ -227,7 +227,6 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         allow(family).to receive(:active_family_members).and_return(family_members)
         allow(family).to receive(:check_for_consumer_role).and_return nil
         allow(employee_role).to receive(:census_employee_id).and_return census_employee.id
-        allow(family).to receive(:enrollments_for_home_page).and_return(hbx_enrollments)
         sign_in user
         get :home
       end
@@ -270,7 +269,6 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         allow(person).to receive(:employee_roles).and_return(nil)
         allow(family).to receive(:active_family_members).and_return(family_members)
         allow(family).to receive(:check_for_consumer_role).and_return true
-        allow(family). to receive(:enrollments_for_home_page).and_return(hbx_enrollments)
         sign_in user
         get :home
       end
@@ -353,7 +351,6 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         before :each do
           allow(family).to receive(:active_family_members).and_return(family_members)
           allow(employee_role).to receive(:census_employee_id).and_return census_employee.id
-          allow(family).to receive(:enrollments_for_home_page).and_return([display_hbx])
           get :home
         end
         it "should be a success" do
@@ -379,7 +376,6 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         before :each do
           allow(family).to receive(:active_family_members).and_return(family_members)
           allow(employee_role).to receive(:census_employee_id).and_return census_employee.id
-          allow(family).to receive(:enrollments_for_home_page).and_return([display_hbx])
           get :home
         end
         it "should be a success" do

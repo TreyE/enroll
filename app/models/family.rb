@@ -289,13 +289,6 @@ class Family
     @enrollment_list ||= latest_household.hbx_enrollments.show_enrollments_sans_canceled
   end
 
-  def enrollments_for_home_page
-    enrollments = self.enrollments.non_external.product_present.order(
-      effective_on: :desc,
-      submitted_at: :desc, coverage_kind: :desc
-    ) || []
-  end
-
   # The {FamilyMember} who is head and 'owner' of this family instance.
   #
   # @example Who is the primary applicant for this family?
