@@ -41,17 +41,7 @@ class Phone
     length: { minimum: 7, maximum: 7, message: "%{value} is not a valid phone number" },
     allow_blank: false
 
-  validates :kind,
-    inclusion: { in: valid_phone_kinds, message: "%{value} is not a valid phone type" },
-    allow_blank: false
-
-  def valid_phone_kinds
-    if # is a person
-      KINDS
-    else # is an office
-      KINDS + OFFICE_KINDS
-    end
-  end
+  validate :validate_phone_kind
 
   def blank?
     [:full_phone_number, :area_code, :number, :extension].all? do |attr|
@@ -105,7 +95,21 @@ class Phone
     self.full_phone_number = to_s
   end
 
-private
+  def is_person_phone?
+    self._parent.class == Person
+  end
+
+  private
+
+  def validate_phone_kind
+    # "phone main" is invalid EDI for individual person phones
+    if self.is_person_phone?
+      errors.add(:kind, "#{kind} is not a valid phone type") unless kind.in?(KINDS)
+    else # is an office
+      errors.add(:kind, "#{kind} is not a valid phone type") unless kind.in?(KINDS + OFFICE_KINDS)
+    end
+  end
+  
   def filter_non_numeric(str)
     str.present? ? str.to_s.gsub(/\D/,'') : ""
   end
